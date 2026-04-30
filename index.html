@@ -11,6 +11,19 @@
 
 <!-- ElevenLabs ConvAI widget -->
 <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+<script>
+  window.addEventListener('load', () => {
+    console.log('[DEBUG] elevenlabs-convai script loaded:', !!customElements.get('elevenlabs-convai'));
+    console.log('[DEBUG] mount div exists:', !!document.querySelector('.voice-widget-mount'));
+    console.log('[DEBUG] mount div children:', document.querySelector('.voice-widget-mount')?.innerHTML);
+    console.log('[DEBUG] convai element:', document.querySelector('elevenlabs-convai'));
+    console.log('[DEBUG] convai computed style:', document.querySelector('elevenlabs-convai') ? getComputedStyle(document.querySelector('elevenlabs-convai')) : 'not found');
+  });
+  setTimeout(() => {
+    console.log('[DEBUG 3s] convai element:', document.querySelector('elevenlabs-convai'));
+    console.log('[DEBUG 3s] convai shadow root:', document.querySelector('elevenlabs-convai')?.shadowRoot);
+  }, 3000);
+</script>
 
 <style>
   :root {
@@ -371,6 +384,9 @@
     border-radius: 18px; padding: 20px;
     min-height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: center;
     position: relative;
+    /* Creates a new containing block for position:fixed descendants (shadow DOM widget) */
+    transform: translateZ(0);
+    overflow: hidden;
   }
   .voice-widget-mount elevenlabs-convai { width: 100%; max-width: 100%; }
 
