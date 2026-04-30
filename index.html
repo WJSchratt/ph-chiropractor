@@ -569,7 +569,7 @@
     <a data-jump="operations">Operations</a>
     <a data-jump="numbers">Numbers</a>
   </nav>
-  <a href="#book" class="cta-top">Book Free Implementation Call →</a>
+  <a href="https://links.profithexagon.com/widget/bookings/implementation-call-automation" target="_blank" rel="noopener" class="cta-top" id="book-cta-top">Book Free Implementation Call →</a>
 </header>
 
 <!-- ═════ HERO ═════ -->
@@ -776,7 +776,7 @@
 
   <div class="section-eyebrow">03 · The Conversation Engine</div>
   <h2 class="section-title">Same brain. <em>Different channel.</em></h2>
-  <p class="section-sub">The texting bot handles two-way SMS for confirmations, no-show recovery, AR followup, reactivation, and customer questions. Pick a scenario below to see real conversations the bot handles end-to-end. Or flip to LIVE MODE and talk to the actual bot in real time.</p>
+  <p class="section-sub">The texting bot handles two-way SMS for confirmations, no-show recovery, AR followup, reactivation, and customer questions. Pick a scenario below to see real conversations the bot handles end-to-end.</p>
 
   <div class="question-block">
     <div class="q-label">Quick math</div>
@@ -1210,10 +1210,7 @@ let liveMode = false;
 let liveConversationId = null;
 let liveHistory = [];
 
-// Show LIVE MODE button only if endpoint configured
-if (LIVE_BOT_CONFIG.endpoint) {
-  liveModeBtn.style.display = 'block';
-}
+// Live mode button intentionally hidden on the public demo
 
 function loadScenario(name) {
   currentScenario = name;
@@ -1371,6 +1368,14 @@ document.querySelectorAll('.sms-scenario-btn').forEach(b => {
   b.addEventListener('click', () => loadScenario(b.dataset.scenario));
 });
 loadScenario('confirm');
+
+// Book button debug logging
+document.querySelectorAll('#book-cta-top, .cta-btn').forEach(function(el) {
+  el.addEventListener('click', function(e) {
+    console.log('[BOOK] clicked:', el.id || el.className, 'href:', el.href, 'target:', el.target);
+    console.log('[BOOK] default prevented?', e.defaultPrevented);
+  });
+});
 
 // Voice widget: custom idle CTA → activate on click
 (function() {
