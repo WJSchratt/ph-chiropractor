@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profit Hexagon · Billing AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (window.pdfjsLib) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+</script>
+<style>
+  :root {
+    --bg-0: #0a0e1a;
+    --bg-1: #0f1422;
+    --bg-2: #141a2c;
+    --bg-3: #1c2338;
+    --line: #232a42;
+    --line-strong: #2e3852;
+    --text: #f5f6f8;
+    --text-dim: #a3aabd;
+    --text-faint: #6b7287;
+    --gold: #fbbf24;
+    --gold-bright: #fcd34d;
+    --gold-deep: #d97706;
+    --gold-glow: rgba(251, 191, 36, 0.18);
+    --green: #10b981;
+    --red: #ef4444;
+    --blue: #60a5fa;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg-0); color: var(--text); font-family: var(--sans); font-weight: 400; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  body {
+    background-image:
+      radial-gradient(ellipse 100% 60% at 50% -10%, rgba(251,191,36,0.08), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 90% 10%, rgba(217,119,6,0.04), transparent 70%);
+    min-height: 100vh;
+  }
+
+  .container { max-width: 1280px; margin: 0 auto; padding: 28px 28px 80px; }
+
+  /* NAV */
+  .nav { display: flex; justify-content: space-between; align-items: center; padding-bottom: 22px; border-bottom: 1px solid var(--line); margin-bottom: 40px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .brand-mark svg { width: 100%; height: 100%; }
+  .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+  .brand-name { font-weight: 700; letter-spacing: -0.01em; font-size: 17px; color: var(--text); }
+  .brand-tag { font-size: 10px; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; font-weight: 600; }
+  .nav-stats { display: flex; gap: 28px; font-size: 12px; }
+  .nav-stat { display: flex; flex-direction: column; align-items: flex-end; }
+  .nav-stat .label { color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; }
+  .nav-stat .val { font-family: var(--mono); font-weight: 500; color: var(--text); font-size: 14px; }
+  .nav-stat .val.gold { color: var(--gold); }
+
+  /* MODE TABS */
+  .mode-tabs { display: flex; gap: 4px; max-width: 720px; margin: 0 auto 32px; background: var(--bg-1); padding: 6px; border-radius: 14px; border: 1px solid var(--line); }
+  .mode-tab {
+    flex: 1;
+    padding: 12px 18px;
+    background: transparent; color: var(--text-dim);
+    border: none; border-radius: 10px;
+    font-family: var(--sans); font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s ease;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .mode-tab:hover { color: var(--text); }
+  .mode-tab.active {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-deep) 100%);
+    color: var(--bg-0);
+    box-shadow: 0 4px 16px var(--gold-glow);
+  }
+  .mode-tab svg { width: 16px; height: 16px; }
+
+  /* HERO */
+  .hero { text-align: center; margin-bottom: 36px; }
+  .hero .eyebrow { display: inline-block; font-size: 11px; color: var(--gold); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; margin-bottom: 14px; padding: 5px 14px; background: var(--gold-glow); border-radius: 100px; border: 1px solid rgba(251,191,36,0.25); }
+  .hero h1 { font-weight: 800; font-size: clamp(32px, 4.5vw, 48px); line-height: 1.1; letter-spacing: -0.025em; margin-bottom: 14px; }
+  .hero h1 em { font-style: normal; color: var(--gold); }
+  .hero p { color: var(--text-dim); font-size: 16px; max-width: 580px; margin: 0 auto; line-height: 1.55; }
+
+  /* DROP ZONE */
+  .drop-zone { max-width: 740px; margin: 0 auto; background: var(--bg-1); border: 2px dashed var(--line-strong); border-radius: 16px; padding: 48px 32px; text-align: center; transition: all 0.25s ease; cursor: pointer; position: relative; }
+  .drop-zone:hover, .drop-zone.dragover { border-color: var(--gold); background: var(--bg-2); box-shadow: 0 0 0 4px var(--gold-glow); }
+  .drop-icon { width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 14px; background: var(--bg-3); display: flex; align-items: center; justify-content: center; transition: all 0.25s ease; }
+  .drop-zone:hover .drop-icon { background: var(--gold-glow); }
+  .drop-zone svg.up-icon { width: 28px; height: 28px; stroke: var(--gold); }
+  .drop-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+  .drop-subtitle { font-size: 13px; color: var(--text-dim); }
+  .drop-formats { font-size: 11px; color: var(--text-faint); margin-top: 12px; font-family: var(--mono); letter-spacing: 0.04em; }
+  #file-input, #encounter-input { display: none; }
+
+  /* GHL TRIGGER BANNER */
+  .ghl-banner { max-width: 740px; margin: -16px auto 24px; background: linear-gradient(135deg, rgba(251,191,36,0.08), rgba(217,119,6,0.04)); border: 1px solid rgba(251,191,36,0.3); border-radius: 12px; padding: 14px 18px; display: none; align-items: center; gap: 14px; animation: fadeInUp 0.4s ease; }
+  .ghl-banner.active { display: flex; }
+  .ghl-banner .pulse-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); flex-shrink: 0; animation: pulse 1.6s ease-in-out infinite; box-shadow: 0 0 0 0 var(--gold-glow); }
+  .ghl-banner .ghl-text { flex: 1; font-size: 13px; }
+  .ghl-banner .ghl-text strong { color: var(--gold); font-weight: 700; }
+  .ghl-banner .ghl-text .meta { color: var(--text-dim); font-family: var(--mono); font-size: 11px; margin-top: 2px; }
+  .ghl-banner .ghl-source { font-size: 10px; color: var(--text-faint); padding: 4px 10px; background: var(--bg-2); border-radius: 100px; font-family: var(--mono); letter-spacing: 0.04em; text-transform: uppercase; flex-shrink: 0; }
+
+  /* IMAGE PREVIEW (uploaded screenshot) */
+  .img-preview-wrap { margin-top: 18px; padding: 14px; background: var(--bg-2); border-radius: 10px; border: 1px solid var(--line); display: none; gap: 12px; align-items: center; }
+  .img-preview-wrap.active { display: flex; }
+  .img-preview { width: 56px; height: 56px; border-radius: 8px; background: var(--bg-3); flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line-strong); }
+  .img-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .img-preview-info { flex: 1; font-size: 12px; }
+  .img-preview-info .name { color: var(--text); font-weight: 600; margin-bottom: 2px; }
+  .img-preview-info .size { color: var(--text-faint); font-family: var(--mono); }
+  .img-preview-badge { font-size: 10px; padding: 4px 10px; background: var(--gold-glow); color: var(--gold); border-radius: 100px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-family: var(--mono); border: 1px solid rgba(251,191,36,0.2); }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0.5); }
+    50% { box-shadow: 0 0 0 8px rgba(251,191,36,0); }
+  }
+
+  /* SAMPLE BUTTONS */
+  .samples { max-width: 740px; margin: 22px auto 0; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .sample-btn { background: var(--bg-2); border: 1px solid var(--line); color: var(--text-dim); padding: 8px 14px; border-radius: 100px; font-size: 12px; font-family: var(--mono); cursor: pointer; transition: all 0.15s ease; font-weight: 500; }
+  .sample-btn:hover { background: var(--bg-3); border-color: var(--gold); color: var(--gold); }
+
+  /* MANUAL FORM (Generate mode) */
+  .manual-form { max-width: 740px; margin: 28px auto 0; background: var(--bg-1); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: none; }
+  .manual-form.active { display: block; }
+  .manual-form-title { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field.full { grid-column: 1 / -1; }
+  .field label { font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .field input, .field select, .field textarea {
+    background: var(--bg-2); border: 1px solid var(--line); color: var(--text);
+    padding: 10px 12px; border-radius: 8px; font-family: var(--sans); font-size: 13px;
+    transition: border 0.15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--gold); }
+  .field textarea { min-height: 80px; resize: vertical; font-family: var(--mono); font-size: 12px; }
+
+  /* PROCESSING */
+  .processing { max-width: 740px; margin: 28px auto 0; background: var(--bg-1); border: 1px solid var(--line); border-radius: 16px; padding: 36px; display: none; }
+  .processing.active { display: block; animation: fadeIn 0.3s ease; }
+  .proc-header { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+  .proc-spinner { width: 32px; height: 32px; border: 3px solid var(--line-strong); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .proc-title { font-weight: 600; font-size: 15px; }
+  .proc-subtitle { font-size: 12px; color: var(--text-dim); margin-top: 2px; font-family: var(--mono); }
+  .proc-steps { display: flex; flex-direction: column; gap: 8px; }
+  .proc-step { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--bg-2); border-radius: 8px; opacity: 0.4; transition: opacity 0.3s ease; font-size: 13px; }
+  .proc-step.active, .proc-step.done { opacity: 1; }
+  .proc-check { width: 18px; height: 18px; border-radius: 50%; background: var(--bg-3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .proc-step.done .proc-check { background: var(--gold); }
+  .proc-step.done .proc-check::after { content: '✓'; color: var(--bg-0); font-weight: 700; font-size: 11px; }
+  .proc-step.active .proc-check::after { content: ''; width: 8px; height: 8px; border: 2px solid var(--gold); border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; }
+
+  /* RESULTS */
+  .results { display: none; margin-top: 40px; animation: fadeInUp 0.5s ease; }
+  .results.active { display: block; }
+
+  .recovery-banner { background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%); border: 1px solid var(--line); border-radius: 16px; padding: 28px 32px; margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; position: relative; overflow: hidden; }
+  .recovery-banner::before { content: ''; position: absolute; top: -50%; right: -10%; width: 320px; height: 200%; background: radial-gradient(ellipse, var(--gold-glow), transparent 70%); pointer-events: none; }
+  .recovery-left { position: relative; z-index: 1; }
+  .recovery-left h2 { font-weight: 700; font-size: 26px; line-height: 1.2; margin-bottom: 6px; letter-spacing: -0.02em; }
+  .recovery-left h2 em { font-style: normal; color: var(--gold); }
+  .recovery-left p { color: var(--text-dim); font-size: 14px; }
+  .recovery-amount { text-align: right; position: relative; z-index: 1; }
+  .recovery-amount .label { font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; margin-bottom: 4px; }
+  .recovery-amount .value { font-weight: 800; font-size: 52px; color: var(--gold); letter-spacing: -0.025em; line-height: 1; }
+  .recovery-amount .sub { font-size: 12px; color: var(--text-dim); margin-top: 6px; font-family: var(--mono); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1.05fr; gap: 22px; }
+  @media (max-width: 880px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .card { background: var(--bg-1); border: 1px solid var(--line); border-radius: 14px; padding: 24px; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--text); letter-spacing: 0.08em; text-transform: uppercase; }
+  .card-badge { font-size: 10px; padding: 4px 10px; background: var(--gold-glow); color: var(--gold); border-radius: 100px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-family: var(--mono); border: 1px solid rgba(251,191,36,0.2); }
+
+  .data-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--bg-2); font-size: 13px; gap: 12px; }
+  .data-row:last-child { border-bottom: none; }
+  .data-row .key { color: var(--text-dim); font-size: 12px; flex-shrink: 0; }
+  .data-row .val { font-family: var(--mono); font-weight: 500; color: var(--text); text-align: right; word-break: break-word; }
+  .data-row .val.code { color: var(--gold); }
+  .data-row .val.amount { color: var(--gold); font-weight: 700; }
+  .data-row .val.danger { color: var(--red); }
+  .data-row .val.green { color: var(--green); }
+
+  .verdict { margin-top: 18px; padding: 14px; border-radius: 10px; background: var(--bg-2); border-left: 3px solid var(--gold); }
+  .verdict.partial { border-left-color: var(--gold-deep); }
+  .verdict.success { border-left-color: var(--green); }
+  .verdict-label { font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 6px; }
+  .verdict-text { font-size: 13px; color: var(--text); line-height: 1.5; }
+  .verdict-text strong { color: var(--gold); }
+
+  .root-cause { margin-top: 18px; }
+  .root-cause-label { font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 6px; }
+  .root-cause-text { font-size: 13px; color: var(--text-dim); line-height: 1.6; padding: 12px 14px; background: var(--bg-2); border-radius: 8px; }
+  .root-cause-text strong { color: var(--text); font-weight: 600; }
+
+  /* OUTPUT DOC (Letter or Claim or Invoice) */
+  .doc-actions { display: flex; gap: 8px; }
+  .btn { padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; font-family: var(--sans); cursor: pointer; border: 1px solid var(--line-strong); background: var(--bg-2); color: var(--text); display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s ease; letter-spacing: 0.02em; }
+  .btn:hover { background: var(--bg-3); border-color: var(--gold); }
+  .btn.primary { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-deep) 100%); color: var(--bg-0); border-color: var(--gold); font-weight: 700; }
+  .btn.primary:hover { box-shadow: 0 4px 16px var(--gold-glow); }
+  .btn.copied { background: var(--green); color: var(--bg-0); border-color: var(--green); }
+
+  .doc-body { background: #f8f6f1; color: #1a1a1a; padding: 28px 30px 32px; border-radius: 10px; font-family: 'Georgia', serif; font-size: 13px; line-height: 1.6; max-height: 540px; overflow-y: auto; box-shadow: inset 0 1px 0 rgba(0,0,0,0.05); }
+  .doc-body::-webkit-scrollbar { width: 8px; }
+  .doc-body::-webkit-scrollbar-track { background: #ebe9e3; }
+  .doc-body::-webkit-scrollbar-thumb { background: #c9c5b8; border-radius: 4px; }
+  .doc-body p { margin-bottom: 11px; }
+  .doc-body .letterhead { text-align: center; padding-bottom: 12px; border-bottom: 1px solid #c9c5b8; margin-bottom: 16px; }
+  .doc-body .letterhead .practice { font-weight: 700; font-size: 16px; color: #1a1a1a; }
+  .doc-body .letterhead .meta { font-size: 11px; color: #555; margin-top: 4px; }
+  .doc-body .recipient { margin-bottom: 16px; font-size: 12px; }
+  .doc-body .ref { background: #ece8db; padding: 10px 14px; border-left: 3px solid #fbbf24; font-size: 12px; margin-bottom: 16px; font-family: 'Courier New', monospace; }
+  .doc-body .signature { margin-top: 20px; padding-top: 12px; border-top: 1px solid #c9c5b8; }
+
+  /* CLAIM SUMMARY (CMS-1500 style) */
+  .doc-body .claim-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-family: 'Courier New', monospace; font-size: 11px; }
+  .doc-body .claim-table th { background: #1a1a1a; color: #f8f6f1; padding: 6px 8px; text-align: left; font-size: 10px; }
+  .doc-body .claim-table td { padding: 6px 8px; border-bottom: 1px solid #c9c5b8; }
+  .doc-body .claim-table .amt { text-align: right; }
+  .doc-body .claim-section { background: #ece8db; padding: 8px 12px; font-weight: 700; margin: 12px 0 8px; font-family: 'Inter', sans-serif; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* NEXT STEPS */
+  .next-steps { margin-top: 28px; background: var(--bg-1); border: 1px solid var(--line); border-radius: 14px; padding: 24px; }
+  .next-steps-title { font-size: 12px; font-weight: 700; color: var(--text); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px; }
+  .step-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 720px) { .step-list { grid-template-columns: 1fr; } }
+  .step { padding: 16px; background: var(--bg-2); border-radius: 10px; border: 1px solid var(--line); }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--gold); color: var(--bg-0); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; margin-bottom: 8px; }
+  .step-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .step-text { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+  .reset-bar { margin-top: 28px; text-align: center; }
+  .reset-link { color: var(--text-faint); font-size: 13px; cursor: pointer; text-decoration: none; border-bottom: 1px dashed var(--line-strong); padding-bottom: 2px; transition: color 0.15s ease; }
+  .reset-link:hover { color: var(--gold); border-color: var(--gold); }
+
+  .footer { margin-top: 64px; padding-top: 28px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; font-size: 12px; color: var(--text-faint); }
+  .footer-links { display: flex; gap: 18px; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- NAV -->
+  <div class="nav">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="hex-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#fcd34d"/>
+              <stop offset="100%" stop-color="#d97706"/>
+            </linearGradient>
+          </defs>
+          <polygon points="30,4 52,17 52,43 30,56 8,43 8,17" fill="none" stroke="url(#hex-grad)" stroke-width="2.5"/>
+          <polygon points="30,14 44,22 44,38 30,46 16,38 16,22" fill="none" stroke="url(#hex-grad)" stroke-width="1.5" opacity="0.6"/>
+          <circle cx="30" cy="30" r="4" fill="url(#hex-grad)"/>
+          <line x1="30" y1="14" x2="30" y2="26" stroke="url(#hex-grad)" stroke-width="1.2" opacity="0.5"/>
+          <line x1="30" y1="34" x2="30" y2="46" stroke="url(#hex-grad)" stroke-width="1.2" opacity="0.5"/>
+          <line x1="16" y1="22" x2="26" y2="28" stroke="url(#hex-grad)" stroke-width="1.2" opacity="0.5"/>
+          <line x1="44" y1="22" x2="34" y2="28" stroke="url(#hex-grad)" stroke-width="1.2" opacity="0.5"/>
+          <line x1="16" y1="38" x2="26" y2="32" stroke="url(#hex-grad)" stroke-width="1.2" opacity="0.5"/>
+          <line x1="44" y1="38" x2="34" y2="32" stroke="url(#hex-grad)" stroke-width="1.2" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">The Profit Hexagon</div>
+        <div class="brand-tag">Billing AI · Chiropractic</div>
+      </div>
+    </div>
+    <div class="nav-stats">
+      <div class="nav-stat"><span class="label">Avg Recovery</span><span class="val gold">68%</span></div>
+      <div class="nav-stat"><span class="label">Avg Time</span><span class="val">4.2s</span></div>
+      <div class="nav-stat"><span class="label">Engine</span><span class="val">v3.0</span></div>
+    </div>
+  </div>
+
+  <!-- MODE TABS -->
+  <div class="mode-tabs" role="tablist">
+    <button class="mode-tab active" data-mode="recover" role="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 4v5h5"/></svg>
+      Recover Denied Claim
+    </button>
+    <button class="mode-tab" data-mode="generate" role="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      Generate Claim from Visit
+    </button>
+  </div>
+
+  <!-- HERO (dynamic) -->
+  <div class="hero">
+    <div class="eyebrow" id="hero-eyebrow">Insurance Denial Recovery</div>
+    <h1 id="hero-title">Stop letting <em>denied claims</em> die on the worklist.</h1>
+    <p id="hero-sub">Drop in any EOB or remittance notice. Our AI extracts the denial reason, drafts the appeal, and tells you exactly how much money is on the table.</p>
+  </div>
+
+  <!-- GHL TRIGGER BANNER (shown when launched via URL params or sample) -->
+  <div class="ghl-banner" id="ghl-banner">
+    <div class="pulse-dot"></div>
+    <div class="ghl-text">
+      <span id="ghl-text-main"><strong>Triggered from GHL</strong> · Contact: <span id="ghl-contact-name">—</span></span>
+      <div class="meta" id="ghl-meta">—</div>
+    </div>
+    <div class="ghl-source" id="ghl-source">TAG TRIGGER</div>
+  </div>
+
+  <!-- DROP ZONE -->
+  <div class="drop-zone" id="drop-zone">
+    <div class="drop-icon">
+      <svg class="up-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+    </div>
+    <div class="drop-title" id="drop-title">Drop your denial document here</div>
+    <div class="drop-subtitle">or click to browse</div>
+    <div class="drop-formats" id="drop-formats">.HTML · .PDF · .TXT · .835 · ERA</div>
+    <input type="file" id="file-input" accept=".html,.htm,.pdf,.txt,.json,.835,.png,.jpg,.jpeg,.heic,.webp,image/*">
+  </div>
+
+  <!-- SAMPLES -->
+  <div class="samples" id="samples-generate" style="display:none;">
+    <button class="sample-btn" data-encounter="medicare_visit">📸 From GHL: Margaret Scott</button>
+    <button class="sample-btn" data-encounter="ppo_visit">📸 From GHL: Olivia Martinez</button>
+    <button class="sample-btn" data-encounter="self_pay">📸 From GHL: David Park (Self-pay)</button>
+  </div>
+
+  <!-- PROCESSING -->
+  <div class="processing" id="processing">
+    <div class="proc-header">
+      <div class="proc-spinner"></div>
+      <div>
+        <div class="proc-title" id="proc-title">Analyzing denial document...</div>
+        <div class="proc-subtitle" id="proc-filename">denial.html</div>
+      </div>
+    </div>
+    <div class="proc-steps" id="proc-steps"></div>
+    <div class="img-preview-wrap" id="img-preview-wrap">
+      <div class="img-preview"><img id="img-preview-img" alt=""/></div>
+      <div class="img-preview-info">
+        <div class="name" id="img-preview-name">screenshot.png</div>
+        <div class="size" id="img-preview-size">— KB</div>
+      </div>
+      <div class="img-preview-badge">📸 Vision AI</div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+
+    <div class="recovery-banner">
+      <div class="recovery-left">
+        <h2>This claim is <em id="verdict-headline">recoverable</em>.</h2>
+        <p id="recovery-subtitle"></p>
+      </div>
+      <div class="recovery-amount">
+        <div class="label" id="amount-label">Dollars at Stake</div>
+        <div class="value" id="recovery-amount">$0</div>
+        <div class="sub" id="recovery-confidence">—</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="data-title">Extracted Data</div>
+          <div class="card-badge">AI Parsed</div>
+        </div>
+        <div id="data-fields"></div>
+        <div class="root-cause">
+          <div class="root-cause-label" id="rc-label">Root Cause Analysis</div>
+          <div class="root-cause-text" id="root-cause"></div>
+        </div>
+        <div class="verdict" id="verdict-box">
+          <div class="verdict-label" id="verdict-label">Recommended Action</div>
+          <div class="verdict-text" id="verdict-text"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="doc-title">Drafted Appeal Letter</div>
+          <div class="doc-actions">
+            <button class="btn" id="copy-btn">📋 Copy</button>
+            <button class="btn primary" id="send-btn" data-recover="→ Send to Biller" data-generate="→ Submit Claim">→ Send to Biller</button>
+          </div>
+        </div>
+        <div class="doc-body" id="doc-body"></div>
+      </div>
+    </div>
+
+    <div class="next-steps">
+      <div class="next-steps-title">Recommended Next Steps</div>
+      <div class="step-list" id="next-steps-list"></div>
+    </div>
+
+    <div class="reset-bar">
+      <a class="reset-link" id="reset-btn">↻ Process another</a>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div>© 2026 The Profit Hexagon · Billing AI for chiropractic practices</div>
+    <div class="footer-links">
+      <span>HIPAA Compliant</span>
+      <span>·</span>
+      <span>BAA Available</span>
+      <span>·</span>
+      <span>v3.0.1</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ================================================================
+// DENIAL RECOVERY responses (5 hardcoded)
+// ================================================================
+const DENIALS = {
+  'CLM-MCR-887234': {
+    headline: 'fully recoverable',
+    subtitle: 'Resubmit corrected claim with AT modifier within timely filing limits.',
+    amount: 48,
+    confidence: 'Recovery probability: 95%',
+    verdictClass: 'success',
+    fields: [
+      { key: 'Payer', val: 'Medicare Part B (Jurisdiction 6)' },
+      { key: 'Patient', val: 'Margaret A Scott' },
+      { key: 'MBI', val: '1EG4-SC7-MR55' },
+      { key: 'Date of Service', val: '04/19/2026' },
+      { key: 'Claim ID', val: 'CLM-MCR-887234' },
+      { key: 'CPT/HCPCS', val: '98941' },
+      { key: 'Diagnosis', val: 'M54.5 (Low Back Pain)' },
+      { key: 'CARC Code', val: 'CO-16', cls: 'code' },
+      { key: 'RARC Code', val: 'N657', cls: 'code' },
+      { key: 'Billed Amount', val: '$48.00', cls: 'amount' },
+      { key: 'Denied Amount', val: '$48.00', cls: 'danger' },
+    ],
+    rootCause: '<strong>Missing AT modifier on HCPCS 98941.</strong> Medicare requires the AT (Active Treatment) modifier on every chiropractic manipulative treatment claim to indicate the service is active/corrective treatment rather than maintenance therapy. Maintenance therapy is statutorily excluded from Medicare coverage under §1862(a)(1)(A) of the Social Security Act. This is the most common Medicare chiropractic denial — a clean fix with a corrected claim resubmission.',
+    recommendation: 'Submit a <strong>corrected claim</strong> with the AT modifier appended to 98941. No appeal letter required for this category; this is a billing error correctable via resubmission. Verify the patient\'s SOAP note documents active treatment with measurable goals before resubmitting.',
+    letter: {
+      practice: 'NORTHSIDE FAMILY CHIROPRACTIC',
+      practiceMeta: '1428 Industrial Blvd · Minneapolis, MN 55401 · NPI 1487223905',
+      date: 'April 28, 2026',
+      recipient: 'Medicare Part B Claims<br>National Government Services, Jurisdiction 6<br>PO Box 6474<br>Indianapolis, IN 46206',
+      ref: 'RE: Corrected Claim Submission<br>Beneficiary: SCOTT, MARGARET A · MBI: 1EG4-SC7-MR55<br>Original Claim ID: CLM-MCR-887234 · DOS: 04/19/2026',
+      body: `<p>To Whom It May Concern,</p><p>This letter accompanies a corrected claim submission for the above-referenced beneficiary. The original claim was denied on April 22, 2026 with CARC 16 / RARC N657, citing missing modifier information.</p><p>The corrected claim now includes the <strong>AT modifier</strong> appended to HCPCS code 98941, in compliance with CMS Pub. 100-04, Chapter 12, §220, indicating that the chiropractic manipulative treatment provided represents active/corrective care for the documented condition (M54.5 — Low Back Pain) and not maintenance therapy.</p><p>The patient's clinical record documents acute symptomatology with measurable functional goals and a defined treatment plan, supporting the active treatment designation. Documentation is available upon request.</p><p>Please process the corrected claim and remit payment per the Medicare physician fee schedule.</p>`,
+      signature: 'Sincerely,<br><br><strong>Billing Department</strong><br>Northside Family Chiropractic<br>(612) 555-0190'
+    },
+    nextSteps: [
+      { num: 1, title: 'Append AT modifier', text: 'Add AT modifier to 98941 in your PMS billing record before resubmission.' },
+      { num: 2, title: 'Verify SOAP note', text: 'Confirm clinical note documents active treatment with measurable functional goals.' },
+      { num: 3, title: 'Resubmit via clearinghouse', text: 'Submit corrected claim. Expected reprocessing time: 14-21 days.' },
+    ]
+  },
+  'CLM-BCBS-112987': {
+    headline: 'recoverable with documentation',
+    subtitle: 'Submit clinical documentation appeal within 180 days.',
+    amount: 185,
+    confidence: 'Recovery probability: 72%',
+    verdictClass: '',
+    fields: [
+      { key: 'Payer', val: 'BCBS Minnesota (Commercial PPO)' },
+      { key: 'Patient', val: 'Thomas J Wright' },
+      { key: 'Member ID', val: 'XJM112987645' },
+      { key: 'Date of Service', val: '04/15/2026' },
+      { key: 'Claim ID', val: 'CLM-BCBS-112987' },
+      { key: 'CPTs', val: '98941 · 97140 · 97014 · 72050' },
+      { key: 'Diagnosis', val: 'M54.5 (Low Back Pain)' },
+      { key: 'CARC Code', val: 'CO-50', cls: 'code' },
+      { key: 'RARC Code', val: 'M127', cls: 'code' },
+      { key: 'Billed Amount', val: '$185.00', cls: 'amount' },
+      { key: 'Denied Amount', val: '$185.00', cls: 'danger' },
+    ],
+    rootCause: '<strong>Medical necessity not established — records not received.</strong> The payer flagged visit #14 as exceeding typical utilization parameters for M54.5 without documented functional improvement. RARC M127 indicates the patient medical record was not received with the original claim. Recoverable by submitting clinical documentation demonstrating active care, measurable progress, and continued medical necessity.',
+    recommendation: 'Submit a <strong>first-level appeal with clinical documentation</strong>: SOAP notes for the disputed DOS, current treatment plan, and outcome assessment scores (Oswestry Disability Index) demonstrating measurable functional improvement.',
+    letter: {
+      practice: 'NORTHSIDE FAMILY CHIROPRACTIC',
+      practiceMeta: '1428 Industrial Blvd · Minneapolis, MN 55401 · NPI 1487223905',
+      date: 'April 28, 2026',
+      recipient: 'BCBS Minnesota — Provider Appeals<br>PO Box 64560<br>Saint Paul, MN 55164',
+      ref: 'RE: First-Level Provider Appeal<br>Member: WRIGHT, THOMAS J · ID: XJM112987645<br>Claim ID: CLM-BCBS-112987 · DOS: 04/15/2026',
+      body: `<p>To the BCBS MN Provider Appeals Team,</p><p>We are submitting a first-level appeal for the above-referenced claim, denied April 23, 2026 citing CARC 50 (medical necessity) and RARC M127 (missing record).</p><p><strong>Clinical justification.</strong> Patient presented with chronic low back pain (M54.5) with acute exacerbation, intake pain rating 7/10, and Oswestry Disability Index score of 42% (severe disability). Current treatment plan was authorized for 24 visits over 8 weeks based on initial functional assessment.</p><p><strong>Demonstrated progress.</strong> At visit 14 of 24, patient demonstrated measurable functional improvement: pain rating reduced to 4/10, ODI reduced to 24% (moderate disability), and return-to-work capacity restored to 80% of pre-injury function. These outcome metrics support continued active treatment status.</p><p><strong>Documentation enclosed.</strong> SOAP notes for DOS 04/15/2026, current signed treatment plan, intake and re-evaluation Oswestry assessments, and progress notes for visits 1 through 14.</p>`,
+      signature: 'Respectfully,<br><br><strong>Billing Department</strong><br>Northside Family Chiropractic'
+    },
+    nextSteps: [
+      { num: 1, title: 'Pull SOAP notes', text: 'Extract clinical documentation for the disputed DOS plus initial intake.' },
+      { num: 2, title: 'Score outcomes', text: 'Compile Oswestry/NDI scores showing functional improvement.' },
+      { num: 3, title: 'Mail with appeal', text: 'Submit packet via BCBS portal. Expected response: 30-45 days.' },
+    ]
+  },
+  'CLM-UHC-773451': {
+    headline: 'recoverable with proof',
+    subtitle: 'Submit reconsideration with clearinghouse acknowledgment.',
+    amount: 92,
+    confidence: 'Recovery probability: 85% with 277CA proof',
+    verdictClass: '',
+    fields: [
+      { key: 'Payer', val: 'UnitedHealthcare (Choice Plus)' },
+      { key: 'Patient', val: 'Nancy R Green' },
+      { key: 'Member ID', val: 'UHC773451209' },
+      { key: 'Date of Service', val: '02/08/2026' },
+      { key: 'Claim ID', val: 'CLM-UHC-773451' },
+      { key: 'CPTs', val: '98940 · 97140' },
+      { key: 'CARC Code', val: 'CO-29', cls: 'code' },
+      { key: 'Filing Window', val: '90 days' },
+      { key: 'Days to Submission', val: '73 days', cls: 'green' },
+      { key: 'Billed Amount', val: '$92.00', cls: 'amount' },
+      { key: 'Denied Amount', val: '$92.00', cls: 'danger' },
+    ],
+    rootCause: '<strong>Timely filing denial — likely overturnable.</strong> Payer denied for filing past 90-day limit, but days-to-submission (73) is within the window. Most often caused by payer-side intake delay. Pull the clearinghouse 277CA acceptance report — typically sufficient to overturn.',
+    recommendation: 'Submit a <strong>Provider Reconsideration request</strong> with proof of original timely submission: clearinghouse 277CA acceptance report or EDI 999 acknowledgment. UHC overturns the majority of these when proof is provided.',
+    letter: {
+      practice: 'NORTHSIDE FAMILY CHIROPRACTIC',
+      practiceMeta: '1428 Industrial Blvd · Minneapolis, MN 55401 · NPI 1487223905',
+      date: 'April 28, 2026',
+      recipient: 'UnitedHealthcare — Provider Reconsideration<br>PO Box 30559<br>Salt Lake City, UT 84130',
+      ref: 'RE: Provider Reconsideration — Timely Filing<br>Member: GREEN, NANCY R · ID: UHC773451209<br>Claim ID: CLM-UHC-773451 · DOS: 02/08/2026',
+      body: `<p>To the UnitedHealthcare Provider Reconsideration Team,</p><p>We are submitting a Provider Reconsideration request to overturn the timely filing denial dated April 24, 2026 (CARC 29).</p><p><strong>Timely original submission.</strong> Original claim was transmitted on March 15, 2026 — 35 days after DOS — well within the 90-day filing window. Enclosed is the 277CA Claim Acknowledgment confirming transmission date and acceptance status.</p><p><strong>Submission trail:</strong></p><p>· DOS: 02/08/2026<br>· Submission: 03/15/2026 (Day 35 of 90)<br>· 277CA: 03/15/2026 — Accepted<br>· UHC EDI 999: 03/15/2026 — Accepted</p><p>Claim was submitted, accepted, and acknowledged within the contractual window. Any subsequent processing delay was not provider action. We respectfully request the denial be overturned.</p>`,
+      signature: 'Respectfully,<br><br><strong>Billing Department</strong>'
+    },
+    nextSteps: [
+      { num: 1, title: 'Pull 277CA report', text: 'Login to clearinghouse and export the 277CA acknowledgment.' },
+      { num: 2, title: 'Pull 999 acknowledgment', text: 'Export UHC EDI 999 functional acknowledgment.' },
+      { num: 3, title: 'Submit via UHC portal', text: 'Upload reconsideration packet. Expected response: 30 days.' },
+    ]
+  },
+  'CLM-AET-229807': {
+    headline: 'partially recoverable',
+    subtitle: 'Verify reinstatement; if no coverage restoration, transfer to patient.',
+    amount: 145,
+    confidence: 'Recovery probability: 50%',
+    verdictClass: 'partial',
+    fields: [
+      { key: 'Payer', val: 'Aetna (Open Access)' },
+      { key: 'Patient', val: 'Andrew M Baker' },
+      { key: 'Member ID', val: 'W229807345' },
+      { key: 'Date of Service', val: '04/08/2026' },
+      { key: 'Coverage End', val: '03/31/2026', cls: 'danger' },
+      { key: 'Claim ID', val: 'CLM-AET-229807' },
+      { key: 'CPTs', val: '99203 · 98941' },
+      { key: 'CARC Code', val: 'CO-27', cls: 'code' },
+      { key: 'Billed Amount', val: '$145.00', cls: 'amount' },
+      { key: 'Denied Amount', val: '$145.00', cls: 'danger' },
+    ],
+    rootCause: '<strong>Coverage terminated before date of service.</strong> Member coverage ended 03/31/2026 due to non-payment of premium. The 04/08 service falls 8 days outside coverage. Recoverable only if coverage was reinstated retroactively. If no reinstatement, patient becomes financially responsible.',
+    recommendation: '<strong>Two-track recovery.</strong> (1) Run a current eligibility check (Availity 270/271). (2) Contact patient to request a reinstatement letter from employer. If coverage cannot be restored, transfer to patient AR pipeline.',
+    letter: {
+      practice: 'NORTHSIDE FAMILY CHIROPRACTIC',
+      practiceMeta: '1428 Industrial Blvd · Minneapolis, MN 55401 · NPI 1487223905',
+      date: 'April 28, 2026',
+      recipient: 'Aetna — Provider Resolution Team<br>PO Box 14079<br>Lexington, KY 40512',
+      ref: 'RE: Provider Appeal — Eligibility<br>Member: BAKER, ANDREW M · ID: W229807345<br>Claim ID: CLM-AET-229807 · DOS: 04/08/2026',
+      body: `<p>To the Aetna Provider Resolution Team,</p><p>We are submitting an appeal for reconsideration of the eligibility-based denial dated April 25, 2026 (CARC 27).</p><p><strong>Eligibility verified at point of service.</strong> Eligibility was verified on April 7, 2026 via the Availity portal. The eligibility response confirmed active coverage. Reference transaction ID: AVL-26097-3389405.</p><p><strong>Likely retroactive correction.</strong> The discrepancy between our verification and the current termination date suggests retroactive adjustment by the group sponsor.</p><p><strong>Requested action:</strong> (1) Re-verify member's coverage status as of 04/08/2026 against most current group eligibility roster. (2) If reinstatement has occurred, reprocess the claim. (3) If no reinstatement, written confirmation so we may transfer financial responsibility to the patient.</p>`,
+      signature: 'Respectfully,<br><br><strong>Billing Department</strong>'
+    },
+    nextSteps: [
+      { num: 1, title: 'Re-verify coverage', text: 'Run a fresh Availity 270/271 eligibility check.' },
+      { num: 2, title: 'Contact patient', text: 'SMS patient to confirm employer/COBRA status.' },
+      { num: 3, title: 'Transfer or appeal', text: 'If no reinstatement, move opportunity to Patient AR 0-30.' },
+    ]
+  },
+  'CLM-CIG-550129': {
+    headline: 'recoverable with corrected coding',
+    subtitle: 'Submit Provider Inquiry with code distinction narrative.',
+    amount: 76,
+    confidence: 'Recovery probability: 80%',
+    verdictClass: '',
+    fields: [
+      { key: 'Payer', val: 'Cigna (Open Access Plus)' },
+      { key: 'Patient', val: 'Helen E Adams' },
+      { key: 'Member ID', val: 'U550129834' },
+      { key: 'Date of Service', val: '04/01/2026' },
+      { key: 'Current Claim', val: 'CLM-CIG-550129' },
+      { key: 'Original Claim', val: 'CLM-CIG-548912 (PAID)' },
+      { key: 'Current CPT', val: '98941' },
+      { key: 'Original CPT', val: '98940' },
+      { key: 'CARC', val: 'CO-18 / RARC M86', cls: 'code' },
+      { key: 'Denied', val: '$76.00', cls: 'danger' },
+    ],
+    rootCause: '<strong>False duplicate flag — likely a code correction.</strong> Payer flagged 98941 as duplicate of a previously paid 98940 on the same DOS. Most duplicate denials are reversible with a brief narrative explaining the code distinction.',
+    recommendation: 'Submit a <strong>Provider Inquiry</strong> with corrected claim and a narrative explaining the difference. Reference the original claim ID and clarify whether 98941 replaces 98940.',
+    letter: {
+      practice: 'NORTHSIDE FAMILY CHIROPRACTIC',
+      practiceMeta: '1428 Industrial Blvd · Minneapolis, MN 55401 · NPI 1487223905',
+      date: 'April 28, 2026',
+      recipient: 'Cigna for Health Care Professionals<br>(submitted via CignaforHCP.com)',
+      ref: 'RE: Provider Inquiry — Duplicate Reversal<br>Member: ADAMS, HELEN E · ID: U550129834<br>Current Claim: CLM-CIG-550129 · DOS: 04/01/2026',
+      body: `<p>To the Cigna Provider Inquiry Department,</p><p>We are submitting a Provider Inquiry to reverse the duplicate denial dated April 26, 2026 (CARC 18 / RARC M86).</p><p><strong>This is not an exact duplicate.</strong> The original and current claims represent different procedure codes:</p><p>· <strong>Original (PAID):</strong> CPT 98940 — chiropractic manipulative treatment, 1-2 spinal regions<br>· <strong>Current (DENIED):</strong> CPT 98941 — chiropractic manipulative treatment, 3-4 spinal regions</p><p><strong>Clarification.</strong> The current submission is a <strong>code correction</strong>. Upon clinical review, the 04/01/2026 adjustment addressed four spinal regions, correctly billable as 98941.</p><p><strong>Requested action:</strong> (1) Reverse original payment on CLM-CIG-548912. (2) Process current claim per contracted fee schedule. (3) Apply differential adjustment to remittance.</p>`,
+      signature: 'Respectfully,<br><br><strong>Billing Department</strong>'
+    },
+    nextSteps: [
+      { num: 1, title: 'Confirm intent', text: 'Verify whether 98941 is a correction or a separate billable service.' },
+      { num: 2, title: 'Pull SOAP', text: 'Extract documentation showing four-region adjustment.' },
+      { num: 3, title: 'Submit via portal', text: 'Upload Provider Inquiry. Expected response: 30 days.' },
+    ]
+  }
+};
+
+// ================================================================
+// CLAIM GENERATION encounters (3 hardcoded)
+// ================================================================
+const ENCOUNTERS = {
+  'medicare_visit': {
+    headline: 'ready to submit',
+    subtitle: 'Clean claim — Medicare AT modifier applied. Estimated reimbursement timeline 14-21 days.',
+    amount: 65,
+    amountLabel: 'Expected Reimbursement',
+    confidence: 'Clean claim probability: 96%',
+    verdictClass: 'success',
+    docTitle: 'Generated Claim — CMS-1500',
+    sendLabel: '→ Submit Claim',
+    fields: [
+      { key: 'Payer', val: 'Medicare Part B' },
+      { key: 'Patient', val: 'Margaret A Scott' },
+      { key: 'MBI', val: '1EG4-SC7-MR55' },
+      { key: 'Date of Service', val: '04/28/2026' },
+      { key: 'Visit Type', val: 'Established Patient — Active Care' },
+      { key: 'Diagnosis', val: 'M54.5 (Low Back Pain)' },
+      { key: 'CPT 1', val: '98941 · AT modifier', cls: 'code' },
+      { key: 'POS', val: '11 (Office)' },
+      { key: 'Place', val: 'Northside Family Chiro' },
+      { key: 'Allowed', val: '$65.00', cls: 'amount' },
+      { key: 'Patient Resp.', val: '$13.00 (20% coinsurance)' },
+      { key: 'Claim Status', val: 'READY', cls: 'green' },
+    ],
+    rootCause: '<strong>Encounter parsed and coded.</strong> SOAP note documents active treatment with measurable functional goals (pain 6→4 of 10, ODI 32%→26%) over 8 visits in current episode. AT modifier appended per CMS Pub. 100-04 Ch. 12 §220 since care is active/corrective and not maintenance therapy. ICD-10 M54.5 supports medical necessity. Diagnosis pointer linked to CPT 98941. Charge level matches 3-4 region adjustment documented in encounter.',
+    recommendation: 'Claim is <strong>clean and ready to submit</strong> via clearinghouse (Office Ally / Availity). Expected payment: $52.00 to provider, $13.00 patient coinsurance. Auto-route opportunity to <strong>📤 Claim Submitted</strong> stage in Billing & AR pipeline upon clearinghouse acknowledgment.',
+    document: {
+      kind: 'claim',
+      practice: 'NORTHSIDE FAMILY CHIROPRACTIC',
+      practiceMeta: '1428 Industrial Blvd · Minneapolis, MN 55401 · NPI 1487223905 · Tax ID XX-XXX4421',
+      date: 'April 28, 2026',
+      recipient: '',
+      ref: 'CLAIM SUMMARY — CMS-1500 EQUIVALENT<br>Submission Date: 04/28/2026 · Internal Ref: CLM-DRAFT-2026-0428-001',
+      body: `<p><strong>PATIENT:</strong> SCOTT, MARGARET A · DOB 04/11/1958 · MBI 1EG4-SC7-MR55<br>
+<strong>INSURED:</strong> Self · Address: 2018 Hawthorn Pl, Edina MN 55424<br>
+<strong>RELATIONSHIP TO INSURED:</strong> Self</p>
+
+<div class="claim-section">Box 21 — Diagnosis Codes (ICD-10)</div>
+<table class="claim-table">
+<tr><th>#</th><th>Code</th><th>Description</th></tr>
+<tr><td>A</td><td>M54.5</td><td>Low back pain</td></tr>
+<tr><td>B</td><td>M99.03</td><td>Segmental dysfunction, lumbar region</td></tr>
+</table>
+
+<div class="claim-section">Box 24 — Service Lines</div>
+<table class="claim-table">
+<tr><th>DOS</th><th>POS</th><th>CPT</th><th>Mod</th><th>Dx Ptr</th><th class="amt">Charge</th><th>Units</th></tr>
+<tr><td>04/28/26</td><td>11</td><td>98941</td><td>AT</td><td>A,B</td><td class="amt">$65.00</td><td>1</td></tr>
+</table>
+
+<div class="claim-section">Box 33 — Billing Provider</div>
+<p>Northside Family Chiropractic · NPI 1487223905 · Tax ID XX-XXX4421 · PTAN MN90412</p>
+
+<div class="claim-section">Documentation Audit (Pre-Submission)</div>
+<p>✓ SOAP note signed and dated by treating DC<br>
+✓ Active treatment documented (functional goals + measurable outcomes)<br>
+✓ AT modifier present on 98941<br>
+✓ ICD-10 to CPT linkage verified<br>
+✓ Patient signature on assignment of benefits on file<br>
+✓ ABN not required (covered service)</p>
+
+<div class="claim-section">Anticipated Payment Detail</div>
+<p>Allowed amount: $65.00<br>
+Medicare pays (80%): $52.00<br>
+Patient coinsurance (20%): $13.00<br>
+Patient deductible status: Met for 2026</p>`,
+      signature: '<strong>Generated by Profit Hexagon Billing AI · v3.0</strong><br>This claim summary is ready for clearinghouse submission. Review and approve before final transmission.'
+    },
+    nextSteps: [
+      { num: 1, title: 'Biller review', text: 'Open in worklist, verify SOAP note matches coded services, approve.' },
+      { num: 2, title: 'Submit via clearinghouse', text: 'Push to Office Ally or Availity. Auto-tag opportunity to 📤 Claim Submitted.' },
+      { num: 3, title: 'Track ERA', text: 'Monitor 277CA, then 835 ERA. Auto-route to 💵 Paid or ⚠️ Denial - Triage on response.' },
+    ]
+  },
+
+  'ppo_visit': {
+    headline: 'ready to submit',
+    subtitle: 'Commercial PPO visit — established patient adjustment + therapy.',
+    amount: 142,
+    amountLabel: 'Expected Reimbursement',
+    confidence: 'Clean claim probability: 92%',
+    verdictClass: 'success',
+    docTitle: 'Generated Claim — CMS-1500',
+    sendLabel: '→ Submit Claim',
+    fields: [
+      { key: 'Payer', val: 'BCBS Minnesota (PPO)' },
+      { key: 'Patient', val: 'Olivia Martinez' },
+      { key: 'Member ID', val: 'XJM900237654' },
+      { key: 'Group', val: 'GRP4421' },
+      { key: 'Date of Service', val: '04/28/2026' },
+      { key: 'Visit Type', val: 'Established Patient · Visit 9 of 24' },
+      { key: 'Diagnosis', val: 'M54.2, M99.01' },
+      { key: 'CPTs', val: '98941 · 97140 · 97014', cls: 'code' },
+      { key: 'POS', val: '11 (Office)' },
+      { key: 'Total Billed', val: '$142.00', cls: 'amount' },
+      { key: 'Patient Resp.', val: '$25.00 (copay)' },
+      { key: 'Claim Status', val: 'READY', cls: 'green' },
+    ],
+    rootCause: '<strong>Encounter parsed: 3 services on 1 DOS.</strong> Spinal adjustment (98941, 3-4 regions), manual therapy (97140, 15 min), and electrical stim (97014). Modifier 59 applied to 97140 to indicate distinct procedural service from the adjustment. Diagnosis pointers linked appropriately. Treatment plan authorization on file (24 visits / 8 weeks). Patient is at visit 9 of 24 — well within authorized utilization band.',
+    recommendation: 'Claim is <strong>clean and ready to submit</strong>. Patient owes $25 copay collected at time of service. Estimated insurance payment $117. Submit via clearinghouse and auto-move opportunity to <strong>📤 Claim Submitted</strong>.',
+    document: {
+      kind: 'claim',
+      practice: 'NORTHSIDE FAMILY CHIROPRACTIC',
+      practiceMeta: '1428 Industrial Blvd · Minneapolis, MN 55401 · NPI 1487223905',
+      date: 'April 28, 2026',
+      recipient: '',
+      ref: 'CLAIM SUMMARY — CMS-1500 EQUIVALENT<br>Submission Date: 04/28/2026 · Internal Ref: CLM-DRAFT-2026-0428-002',
+      body: `<p><strong>PATIENT:</strong> MARTINEZ, OLIVIA · DOB 08/09/1988<br>
+<strong>INSURED:</strong> Self · BCBS MN ID XJM900237654 · Group GRP4421<br>
+<strong>RELATIONSHIP:</strong> Self · <strong>Plan:</strong> Open Access PPO</p>
+
+<div class="claim-section">Box 21 — Diagnosis Codes (ICD-10)</div>
+<table class="claim-table">
+<tr><th>#</th><th>Code</th><th>Description</th></tr>
+<tr><td>A</td><td>M54.2</td><td>Cervicalgia</td></tr>
+<tr><td>B</td><td>M99.01</td><td>Segmental dysfunction, cervical region</td></tr>
+</table>
+
+<div class="claim-section">Box 24 — Service Lines</div>
+<table class="claim-table">
+<tr><th>DOS</th><th>POS</th><th>CPT</th><th>Mod</th><th>Dx Ptr</th><th class="amt">Charge</th><th>Units</th></tr>
+<tr><td>04/28/26</td><td>11</td><td>98941</td><td>—</td><td>A,B</td><td class="amt">$72.00</td><td>1</td></tr>
+<tr><td>04/28/26</td><td>11</td><td>97140</td><td>59</td><td>A,B</td><td class="amt">$48.00</td><td>1</td></tr>
+<tr><td>04/28/26</td><td>11</td><td>97014</td><td>—</td><td>A</td><td class="amt">$22.00</td><td>1</td></tr>
+</table>
+
+<div class="claim-section">Box 33 — Billing Provider</div>
+<p>Northside Family Chiropractic · NPI 1487223905 · Tax ID XX-XXX4421</p>
+
+<div class="claim-section">Documentation Audit (Pre-Submission)</div>
+<p>✓ SOAP note signed and dated by treating DC<br>
+✓ Treatment plan authorization on file (24 visits / 8 weeks)<br>
+✓ Modifier 59 applied to 97140 (distinct procedural service)<br>
+✓ ICD-10 to CPT linkage verified<br>
+✓ Visit 9 of 24 — within authorized utilization band<br>
+✓ Patient signature on assignment of benefits on file</p>
+
+<div class="claim-section">Anticipated Payment Detail</div>
+<p>Total billed: $142.00<br>
+Allowed amount (estimated contractual): $117.00<br>
+Insurance pays (after copay): $92.00<br>
+Patient copay: $25.00 (collected at time of service)</p>`,
+      signature: '<strong>Generated by Profit Hexagon Billing AI · v3.0</strong><br>Ready for biller review and clearinghouse submission.'
+    },
+    nextSteps: [
+      { num: 1, title: 'Confirm copay collected', text: 'Verify front desk collected $25 copay before encounter close.' },
+      { num: 2, title: 'Submit via clearinghouse', text: 'Push to clearinghouse. Move opportunity to 📤 Claim Submitted.' },
+      { num: 3, title: 'Patient AR followup', text: 'If any patient balance remains after ERA, auto-trigger 🟢 Patient Balance 0-30 workflow.' },
+    ]
+  },
+
+  'self_pay': {
+    headline: 'self-pay encounter',
+    subtitle: 'No active insurance on file. Generated patient invoice and routed to collections workflow.',
+    amount: 95,
+    amountLabel: 'Patient Owes',
+    confidence: 'Patient AR routing: confirmed',
+    verdictClass: 'partial',
+    docTitle: 'Generated Patient Invoice',
+    sendLabel: '→ Send Invoice + Pay Link',
+    fields: [
+      { key: 'Patient', val: 'David Park' },
+      { key: 'DOB', val: '12/30/1968' },
+      { key: 'Insurance Status', val: 'SELF-PAY', cls: 'danger' },
+      { key: 'Date of Service', val: '04/28/2026' },
+      { key: 'Visit Type', val: 'Established · Adjustment' },
+      { key: 'CPT', val: '98941 (informational)', cls: 'code' },
+      { key: 'Cash Rate', val: '$95.00', cls: 'amount' },
+      { key: 'Discount Applied', val: '0%' },
+      { key: 'Patient Total', val: '$95.00', cls: 'amount' },
+      { key: 'Routing', val: '🟢 Patient Balance 0-30', cls: 'green' },
+    ],
+    rootCause: '<strong>Self-pay encounter detected.</strong> Patient record indicates no active insurance OR Plan Type = "Cash/Self-Pay". System bypassed claim generation and produced a patient invoice using the practice\'s cash-rate fee schedule. Auto-routed opportunity to <strong>🟢 Patient Balance 0-30</strong> in the Billing & AR pipeline. Payment workflow triggered with SMS + email containing pay link.',
+    recommendation: 'No claim submission needed. <strong>Invoice generated and pay-link SMS scheduled.</strong> If patient pays at front desk before leaving, mark opportunity as <strong>✅ Patient Paid</strong>. If unpaid at close of business, balance enters automated 0-30 day collection cadence: SMS at day 2, day 9, day 16; email at day 14; voice agent at day 31 if balance > 0.',
+    document: {
+      kind: 'invoice',
+      practice: 'NORTHSIDE FAMILY CHIROPRACTIC',
+      practiceMeta: '1428 Industrial Blvd · Minneapolis, MN 55401 · (612) 555-0190',
+      date: 'April 28, 2026',
+      recipient: 'David Park<br>7724 Birch Court<br>Minnetonka, MN 55345',
+      ref: 'INVOICE #INV-2026-0428-D003<br>Service Date: 04/28/2026 · Due: Upon Receipt',
+      body: `<p>Dear David,</p>
+
+<p>Thank you for visiting Northside Family Chiropractic today. The summary of your visit and balance is below.</p>
+
+<div class="claim-section">Services Provided</div>
+<table class="claim-table">
+<tr><th>Date</th><th>Service</th><th class="amt">Amount</th></tr>
+<tr><td>04/28/26</td><td>Chiropractic Adjustment (3-4 regions)</td><td class="amt">$95.00</td></tr>
+<tr><td colspan="2"><strong>Total Due</strong></td><td class="amt"><strong>$95.00</strong></td></tr>
+</table>
+
+<div class="claim-section">Payment Options</div>
+<p>· <strong>Pay online:</strong> [secure pay link sent via SMS/email]<br>
+· <strong>By phone:</strong> (612) 555-0190<br>
+· <strong>In person:</strong> next visit or any time during office hours<br>
+· <strong>Payment plan:</strong> reply to the SMS we just sent and we'll set one up</p>
+
+<div class="claim-section">A Note on Self-Pay</div>
+<p>Because you're paying out of pocket, you're getting our cash rate — significantly less than what insurance would be billed. We appreciate your direct support of our practice.</p>
+
+<p>If you believe you have insurance coverage we should know about, reply to our SMS or call us — we can re-bill the visit to your plan within 90 days.</p>
+
+<p>Thank you for trusting us with your care.</p>`,
+      signature: '<strong>Northside Family Chiropractic</strong><br>(612) 555-0190 · billing@northsidechiro.example.com'
+    },
+    nextSteps: [
+      { num: 1, title: 'Send invoice + pay link', text: 'SMS + email auto-fire on workflow trigger. No biller action needed.' },
+      { num: 2, title: 'Auto-route to AR pipeline', text: 'Opportunity moved to 🟢 Patient Balance 0-30. Collection cadence active.' },
+      { num: 3, title: 'Verify insurance ask', text: 'Day 2 SMS asks if any insurance coverage exists. If yes, biller re-routes to claim generation.' },
+    ]
+  }
+};
+
+// ================================================================
+// MODE-SPECIFIC CONFIGURATION
+// ================================================================
+const MODE_CONFIG = {
+  recover: {
+    eyebrow: 'Insurance Denial Recovery',
+    title: 'Stop letting <em>denied claims</em> die on the worklist.',
+    sub: 'Drop in any EOB or remittance notice. Our AI extracts the denial reason, drafts the appeal, and tells you exactly how much money is on the table.',
+    dropTitle: 'Drop your denial document here',
+    dropFormats: '.HTML · .PDF · .TXT · .835 · ERA',
+    procTitle: 'Analyzing denial document...',
+    procSteps: [
+      'Extracting structured fields from document',
+      'Decoding CARC/RARC denial codes',
+      'Cross-referencing payer policy database',
+      'Generating appeal letter draft',
+    ],
+    docTitle: 'Drafted Appeal Letter',
+    sendBtn: '→ Send to Biller',
+    dataTitle: 'Extracted Data',
+    rcLabel: 'Root Cause Analysis',
+    verdictLabel: 'Recommended Action',
+    verdictPrefix: 'This claim is',
+    amountLabel: 'Dollars at Stake',
+  },
+  generate: {
+    eyebrow: 'Visit-to-Claim Generation',
+    title: 'Turn every visit into a <em>clean claim</em> automatically.',
+    sub: 'Drop a screenshot of the appointment notes, upload a SOAP note, or trigger from a GHL contact tag. AI codes the visit, applies modifiers, and routes self-pay patients straight to collections.',
+    dropTitle: 'Drop a screenshot, SOAP note, or encounter file',
+    dropFormats: '.PNG · .JPG · .PDF · .TXT · .HEIC · PMS export',
+    procTitle: 'Processing encounter...',
+    procSteps: [
+      'Parsing SOAP note and visit data',
+      'Coding CPT and ICD-10 with modifiers',
+      'Verifying insurance eligibility on file',
+      'Generating claim or invoice document',
+    ],
+    procStepsVision: [
+      'Reading screenshot with Vision AI',
+      'Extracting patient + appointment data',
+      'Coding CPT and ICD-10 with modifiers',
+      'Generating claim or invoice document',
+    ],
+    docTitle: 'Generated Document',
+    sendBtn: '→ Submit Claim',
+    dataTitle: 'Encounter Summary',
+    rcLabel: 'Coding Logic',
+    verdictLabel: 'Next Action',
+    verdictPrefix: 'This visit is',
+    amountLabel: 'Expected Reimbursement',
+  }
+};
+
+// ================================================================
+// STATE
+// ================================================================
+let currentMode = 'recover';
+
+// ================================================================
+// DOM
+// ================================================================
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const processing = document.getElementById('processing');
+const results = document.getElementById('results');
+
+// ================================================================
+// MODE SWITCHING
+// ================================================================
+document.querySelectorAll('.mode-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentMode = tab.dataset.mode;
+    applyMode();
+    // Reset state on mode change
+    results.classList.remove('active');
+    processing.classList.remove('active');
+    fileInput.value = '';
+  });
+});
+
+function applyMode() {
+  const cfg = MODE_CONFIG[currentMode];
+  document.getElementById('hero-eyebrow').textContent = cfg.eyebrow;
+  document.getElementById('hero-title').innerHTML = cfg.title;
+  document.getElementById('hero-sub').textContent = cfg.sub;
+  document.getElementById('drop-title').textContent = cfg.dropTitle;
+  document.getElementById('drop-formats').textContent = cfg.dropFormats;
+  document.getElementById('proc-title').textContent = cfg.procTitle;
+  document.getElementById('samples-generate').style.display = currentMode === 'generate' ? 'flex' : 'none';
+}
+
+// ================================================================
+// FILE UPLOAD
+// ================================================================
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', (e) => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+document.querySelectorAll('#samples-generate .sample-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const enc = ENCOUNTERS[btn.dataset.encounter];
+    // Show GHL trigger banner — these sample buttons simulate the tag-trigger flow
+    const contactNames = {
+      'medicare_visit': { name: 'Margaret Scott', meta: 'DOS 04/28/2026 · Medicare Part B · Tag: 🤖 Generate Claim added' },
+      'ppo_visit': { name: 'Olivia Martinez', meta: 'DOS 04/28/2026 · BCBS PPO · Tag: 🤖 Generate Claim added' },
+      'self_pay': { name: 'David Park', meta: 'DOS 04/28/2026 · Self-Pay · Tag: 🤖 Generate Claim added' },
+    };
+    const c = contactNames[btn.dataset.encounter];
+    showGhlBanner(c.name, c.meta, 'TAG TRIGGER');
+    document.getElementById('proc-filename').textContent = `appointment_screenshot_${btn.dataset.encounter}.png`;
+    showImagePreview(generateMockScreenshot(c.name), `appointment_${btn.dataset.encounter}.png`, '247 KB');
+    runProcessing('generate', enc, true);
+  });
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  results.classList.remove('active');
+  processing.classList.remove('active');
+  hideImagePreview();
+  hideGhlBanner();
+  fileInput.value = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+function handleFile(file) {
+  document.getElementById('proc-filename').textContent = file.name;
+  const isImage = file.type.startsWith('image/') || /\.(png|jpe?g|heic|webp|gif)$/i.test(file.name);
+  const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+  hideGhlBanner(); // manual upload, no GHL trigger context
+
+  if (isImage) {
+    // Image upload path → Vision AI flow (Generate mode only — switch if needed)
+    if (currentMode !== 'generate') {
+      document.querySelector('.mode-tab[data-mode="generate"]').click();
+    }
+    const sizeKb = (file.size / 1024).toFixed(0) + ' KB';
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      showImagePreview(e.target.result, file.name, sizeKb);
+      const fname = file.name.toLowerCase();
+      let matched = ENCOUNTERS.ppo_visit;
+      if (fname.includes('medicare') || fname.includes('scott') || fname.includes('mcr')) matched = ENCOUNTERS.medicare_visit;
+      else if (fname.includes('self') || fname.includes('cash') || fname.includes('park')) matched = ENCOUNTERS.self_pay;
+      else if (fname.includes('martinez') || fname.includes('ppo') || fname.includes('bcbs')) matched = ENCOUNTERS.ppo_visit;
+      runProcessing('generate', matched, true);
+    };
+    reader.onerror = () => runProcessing('generate', null, true);
+    reader.readAsDataURL(file);
+    return;
+  }
+
+  hideImagePreview();
+
+  if (isPdf) {
+    // PDF path — extract text with PDF.js, then run matching
+    extractPdfText(file).then(text => {
+      matchAndRun(text);
+    }).catch(err => {
+      console.error('PDF extraction failed:', err);
+      runProcessing(currentMode, null, false);
+    });
+    return;
+  }
+
+  // Plain text / HTML path
+  const reader = new FileReader();
+  reader.onload = (e) => matchAndRun(e.target.result);
+  reader.onerror = () => runProcessing(currentMode, null, false);
+  reader.readAsText(file);
+}
+
+// Extract text from PDF using PDF.js
+async function extractPdfText(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let fullText = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const textContent = await page.getTextContent();
+    fullText += textContent.items.map(item => item.str).join(' ') + ' ';
+  }
+  return fullText;
+}
+
+// Run matching on extracted text content (works for HTML, TXT, or PDF text)
+function matchAndRun(content) {
+  if (currentMode === 'recover') {
+    let matched = null;
+    for (const id of Object.keys(DENIALS)) if (content.indexOf(id) !== -1) { matched = DENIALS[id]; break; }
+    runProcessing('recover', matched, false);
+  } else {
+    let matched = null;
+    const c = content.toLowerCase();
+    if (c.indexOf('mbi') !== -1 || c.indexOf('medicare') !== -1) matched = ENCOUNTERS.medicare_visit;
+    else if (c.indexOf('self-pay') !== -1 || c.indexOf('self pay') !== -1 || c.indexOf('cash') !== -1) matched = ENCOUNTERS.self_pay;
+    else matched = ENCOUNTERS.ppo_visit;
+    runProcessing('generate', matched, false);
+  }
+}
+
+// ================================================================
+// GHL TRIGGER BANNER + IMAGE PREVIEW HELPERS
+// ================================================================
+function showGhlBanner(contactName, meta, source) {
+  document.getElementById('ghl-contact-name').textContent = contactName;
+  document.getElementById('ghl-meta').textContent = meta;
+  document.getElementById('ghl-source').textContent = source || 'TAG TRIGGER';
+  document.getElementById('ghl-banner').classList.add('active');
+}
+function hideGhlBanner() {
+  document.getElementById('ghl-banner').classList.remove('active');
+}
+function showImagePreview(dataUrl, name, size) {
+  document.getElementById('img-preview-img').src = dataUrl;
+  document.getElementById('img-preview-name').textContent = name;
+  document.getElementById('img-preview-size').textContent = size;
+  document.getElementById('img-preview-wrap').classList.add('active');
+}
+function hideImagePreview() {
+  document.getElementById('img-preview-wrap').classList.remove('active');
+}
+
+// Generate a fake "appointment screenshot" thumbnail (SVG-as-data-URL) for sample buttons
+function generateMockScreenshot(contactName) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#1c2338"/><rect x="6" y="8" width="88" height="6" rx="2" fill="#fbbf24"/><rect x="6" y="20" width="50" height="3" rx="1" fill="#a3aabd"/><rect x="6" y="28" width="88" height="2" fill="#2e3852"/><rect x="6" y="34" width="70" height="3" rx="1" fill="#a3aabd"/><rect x="6" y="42" width="60" height="3" rx="1" fill="#a3aabd"/><rect x="6" y="50" width="80" height="3" rx="1" fill="#a3aabd"/><rect x="6" y="58" width="55" height="3" rx="1" fill="#a3aabd"/><rect x="6" y="66" width="88" height="2" fill="#2e3852"/><rect x="6" y="72" width="40" height="4" rx="1" fill="#fbbf24"/><rect x="50" y="72" width="44" height="4" rx="1" fill="#10b981"/><rect x="6" y="82" width="88" height="3" rx="1" fill="#6b7287"/><rect x="6" y="89" width="60" height="3" rx="1" fill="#6b7287"/></svg>`;
+  return 'data:image/svg+xml;base64,' + btoa(svg);
+}
+
+// ================================================================
+// PROCESSING ANIMATION
+// ================================================================
+function runProcessing(mode, data, useVisionSteps) {
+  results.classList.remove('active');
+  processing.classList.add('active');
+
+  // Build proc steps — use vision-AI variant when triggered by image/screenshot
+  const cfg = MODE_CONFIG[mode];
+  const steps = (useVisionSteps && cfg.procStepsVision) ? cfg.procStepsVision : cfg.procSteps;
+  // Update proc title to match
+  document.getElementById('proc-title').textContent = useVisionSteps
+    ? 'Reading screenshot with Vision AI...'
+    : cfg.procTitle;
+  const stepsHtml = steps.map((s, i) =>
+    `<div class="proc-step" id="pstep-${i}"><div class="proc-check"></div>${s}</div>`
+  ).join('');
+  document.getElementById('proc-steps').innerHTML = stepsHtml;
+
+  window.scrollTo({ top: dropZone.offsetTop - 20, behavior: 'smooth' });
+
+  let i = 0;
+  document.getElementById('pstep-0').classList.add('active');
+  const interval = setInterval(() => {
+    document.getElementById('pstep-' + i).classList.remove('active');
+    document.getElementById('pstep-' + i).classList.add('done');
+    i++;
+    if (i < steps.length) {
+      document.getElementById('pstep-' + i).classList.add('active');
+    } else {
+      clearInterval(interval);
+      setTimeout(() => {
+        processing.classList.remove('active');
+        if (data) renderResults(mode, data);
+        else renderFallback(mode);
+      }, 350);
+    }
+  }, 420);
+}
+
+// ================================================================
+// RESULTS
+// ================================================================
+function renderResults(mode, data) {
+  const cfg = MODE_CONFIG[mode];
+  document.getElementById('verdict-headline').textContent = data.headline;
+  document.getElementById('recovery-subtitle').textContent = data.subtitle;
+  document.getElementById('recovery-amount').textContent = '$' + data.amount.toLocaleString();
+  document.getElementById('recovery-confidence').textContent = data.confidence;
+  document.getElementById('amount-label').textContent = data.amountLabel || cfg.amountLabel;
+  document.getElementById('data-title').textContent = cfg.dataTitle;
+  document.getElementById('rc-label').textContent = cfg.rcLabel;
+  document.getElementById('verdict-label').textContent = cfg.verdictLabel;
+  document.getElementById('doc-title').textContent = data.docTitle || cfg.docTitle;
+
+  const sendBtn = document.getElementById('send-btn');
+  sendBtn.textContent = data.sendLabel || cfg.sendBtn;
+  sendBtn.dataset.original = sendBtn.textContent;
+
+  // Verdict prefix update
+  const banner = document.querySelector('.recovery-left h2');
+  banner.innerHTML = `${cfg.verdictPrefix} <em id="verdict-headline">${data.headline}</em>.`;
+
+  // Fields
+  document.getElementById('data-fields').innerHTML = data.fields.map(f =>
+    `<div class="data-row"><span class="key">${f.key}</span><span class="val ${f.cls || ''}">${f.val}</span></div>`
+  ).join('');
+
+  // Root cause + verdict
+  document.getElementById('root-cause').innerHTML = data.rootCause;
+  const verdictBox = document.getElementById('verdict-box');
+  verdictBox.className = 'verdict ' + (data.verdictClass || '');
+  document.getElementById('verdict-text').innerHTML = data.recommendation;
+
+  // Document body
+  const doc = data.letter || data.document;
+  document.getElementById('doc-body').innerHTML = `
+    <div class="letterhead">
+      <div class="practice">${doc.practice}</div>
+      <div class="meta">${doc.practiceMeta}</div>
+    </div>
+    <p style="text-align: right; font-size: 11px; color: #555;">${doc.date}</p>
+    ${doc.recipient ? `<div class="recipient">${doc.recipient}</div>` : ''}
+    ${doc.ref ? `<div class="ref">${doc.ref}</div>` : ''}
+    ${doc.body}
+    ${doc.signature ? `<div class="signature">${doc.signature}</div>` : ''}
+  `;
+
+  // Next steps
+  document.getElementById('next-steps-list').innerHTML = data.nextSteps.map(s =>
+    `<div class="step"><div class="step-num">${s.num}</div><div class="step-title">${s.title}</div><div class="step-text">${s.text}</div></div>`
+  ).join('');
+
+  results.classList.add('active');
+  setTimeout(() => window.scrollTo({ top: results.offsetTop - 60, behavior: 'smooth' }), 100);
+}
+
+function renderFallback(mode) {
+  const fallback = {
+    headline: 'document received',
+    subtitle: 'Demo mode: this document does not match a sample. Try one of the sample buttons above.',
+    amount: 0,
+    confidence: 'Demo mode',
+    verdictClass: 'partial',
+    fields: [{ key: 'Status', val: 'Document received' }, { key: 'Mode', val: 'Demo (sample matching)' }],
+    rootCause: 'In production, the AI engine processes any payer EOB or encounter document. For this demo, please use one of the sample buttons above.',
+    recommendation: 'Click one of the sample buttons to see a full demonstration.',
+    document: { practice: 'DEMO MODE', practiceMeta: 'Sample matching only', date: '', body: '<p>This is demo mode. Please use one of the sample buttons.</p>', signature: '' },
+    letter: { practice: 'DEMO MODE', practiceMeta: 'Sample matching only', date: '', body: '<p>This is demo mode. Please use one of the sample buttons.</p>', signature: '' },
+    nextSteps: [{ num: 1, title: 'Try a sample', text: 'Click any sample button above.' }, { num: 2, title: 'Connect feed', text: 'In production, EOBs/SOAPs auto-flow from your clearinghouse and PMS.' }, { num: 3, title: 'Review output', text: 'AI drafts everything for biller review and one-click submission.' }]
+  };
+  renderResults(mode, fallback);
+}
+
+// ================================================================
+// COPY + SEND
+// ================================================================
+document.getElementById('copy-btn').addEventListener('click', () => {
+  const txt = document.getElementById('doc-body').innerText;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('copy-btn');
+    const original = btn.textContent;
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1800);
+  });
+});
+
+document.getElementById('send-btn').addEventListener('click', () => {
+  const btn = document.getElementById('send-btn');
+  const original = btn.dataset.original || btn.textContent;
+  btn.textContent = '✓ Sent';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 2200);
+});
+
+// ================================================================
+// URL PARAMETER HANDLER (GHL workflow integration)
+// ================================================================
+// Supported params:
+//   ?template=medicare_visit|ppo_visit|self_pay   (which encounter to load)
+//   &fname=Olivia&lname=Martinez                  (optional name override)
+//   &dos=2026-04-28                               (optional date of service)
+//   &payer=BCBS                                   (optional)
+//   &member_id=XJM900237654                       (optional)
+//   &trigger=tag|note|menu                        (display source label)
+//   &mode=recover|generate                        (force mode)
+//   &auto=1                                       (auto-trigger processing)
+//
+// Example URL from GHL workflow merge fields:
+// https://parser.url/billing_ai.html?template=ppo_visit&fname={{contact.first_name}}&lname={{contact.last_name}}&dos={{appointment.start_date}}&trigger=tag&auto=1
+function processUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  const template = params.get('template');
+  const mode = params.get('mode') || (template ? 'generate' : null);
+  const fname = params.get('fname');
+  const lname = params.get('lname');
+  const dos = params.get('dos');
+  const payer = params.get('payer');
+  const memberId = params.get('member_id');
+  const trigger = (params.get('trigger') || 'tag').toLowerCase();
+  const auto = params.get('auto') === '1' || params.get('auto') === 'true';
+
+  if (!template && !mode) return;
+
+  // Force mode if specified
+  if (mode === 'generate' || mode === 'recover') {
+    document.querySelector(`.mode-tab[data-mode="${mode}"]`).click();
+  }
+
+  if (!template || !ENCOUNTERS[template]) return;
+
+  // Build display strings
+  const fullName = [fname, lname].filter(Boolean).join(' ') || ENCOUNTERS[template].fields.find(f => f.key === 'Patient')?.val || 'GHL Contact';
+  const dosDisplay = dos ? formatDate(dos) : '04/28/2026';
+  const triggerLabel = { tag: 'TAG TRIGGER', note: 'NOTE TRIGGER', menu: 'MENU CLICK', api: 'API WEBHOOK' }[trigger] || 'GHL TRIGGER';
+  const meta = `DOS ${dosDisplay} · ${payer || ENCOUNTERS[template].fields.find(f => f.key === 'Payer')?.val || ''} · ${trigger === 'tag' ? 'Tag: 🤖 Generate Claim added' : 'Triggered from contact page'}`;
+
+  showGhlBanner(fullName, meta, triggerLabel);
+
+  // Build encounter data with overrides
+  const enc = JSON.parse(JSON.stringify(ENCOUNTERS[template]));
+  if (fname || lname) {
+    const patientField = enc.fields.find(f => f.key === 'Patient');
+    if (patientField) patientField.val = fullName;
+  }
+  if (dos) {
+    const dosField = enc.fields.find(f => f.key === 'Date of Service');
+    if (dosField) dosField.val = dosDisplay;
+  }
+  if (memberId) {
+    const idField = enc.fields.find(f => f.key === 'Member ID' || f.key === 'MBI');
+    if (idField) idField.val = memberId;
+  }
+
+  if (auto) {
+    document.getElementById('proc-filename').textContent = `appointment_${template}_${(lname || 'patient').toLowerCase()}.png`;
+    showImagePreview(generateMockScreenshot(fullName), `appointment_${(lname || 'patient').toLowerCase()}.png`, '247 KB');
+    setTimeout(() => runProcessing('generate', enc, true), 400);
+  }
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${m}/${day}/${d.getFullYear()}`;
+}
+
+// Init
+applyMode();
+processUrlParams();
+</script>
+
+</body>
+</html>
