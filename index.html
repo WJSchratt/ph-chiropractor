@@ -1210,7 +1210,9 @@ let liveMode = false;
 let liveConversationId = null;
 let liveHistory = [];
 
-// Live mode button intentionally hidden on the public demo
+if (LIVE_BOT_CONFIG.endpoint) {
+  liveModeBtn.style.display = 'block';
+}
 
 function loadScenario(name) {
   currentScenario = name;
@@ -1241,7 +1243,7 @@ function enterLiveMode() {
   liveConversationId = 'live-' + Date.now();
   liveHistory = [];
   phoneContactName.textContent = LIVE_BOT_CONFIG.contactName;
-  smsMeta.innerHTML = '<strong style="color: var(--gold);">LIVE MODE active.</strong> Messages POST to <code style="font-size:11px; background: var(--bg-3); padding: 1px 6px; border-radius: 4px;">' + LIVE_BOT_CONFIG.endpoint + '</code>. Type any message and the live Claude bot replies in real time.';
+  smsMeta.innerHTML = '<strong style="color: var(--gold);">LIVE MODE active.</strong> You are now talking to the real AI bot. Type anything below.';
   document.getElementById('next-msg-preview').style.display = 'none';
   liveInput.style.display = 'block';
   liveInput.focus();
